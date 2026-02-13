@@ -124,3 +124,9 @@ sed -i 's/\r$//' *.*
 ## ✅ Selesai
 
 Sistem siap digunakan sebagai **Edge CCTV Cloud Archiver**.
+
+
+pkill -f record.sh
+pkill -f run.sh
+pkill -f upload.sh
+pkill -f ffmpeg

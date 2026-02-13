@@ -6,17 +6,6 @@ mkdir -p "$LOG_DIR"
 
 while true; do
 
-    # Group file ke folder hari/jam
-    for file in "$LOCAL_DIR"/*.mp4; do
-        [ -e "$file" ] || continue
-
-        filename=$(basename "$file")
-        day=${filename:0:10}
-        hour=${filename:11:2}
-
-        mkdir -p "$LOCAL_DIR/$day/$hour"
-        mv "$file" "$LOCAL_DIR/$day/$hour/"
-    done
 
     # # Upload
     # rclone move "$LOCAL_DIR" "$REMOTE_NAME" \

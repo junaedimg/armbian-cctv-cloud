@@ -1,6 +1,16 @@
 #!/bin/bash
 source ./config.conf
 
+echo "========== CONFIG =========="
+
+while IFS='=' read -r key value; do
+    # skip comment dan baris kosong
+    [[ "$key" =~ ^#.*$ || -z "$key" ]] && continue
+    eval echo "$key = \$$key"
+done < config.conf
+
+echo "============================"
+
 mkdir -p "$LOCAL_DIR"
 mkdir -p "$LOG_DIR"
 
@@ -15,19 +25,27 @@ done
 ) &
 
 # ==========================
-# MONITOR FILE BARU (CLI INFO)
+# GROUP FILE OTOMATIS
 # ==========================
 (
-LAST_FILE=""
 while true; do
-    NEW_FILE=$(ls -t "$LOCAL_DIR"/*.mp4 2>/dev/null | head -n 1)
+    for file in "$LOCAL_DIR"/*.mp4; do
+        [ -e "$file" ] || continue
 
-    if [ -n "$NEW_FILE" ] && [ "$NEW_FILE" != "$LAST_FILE" ]; then
-        echo "[INFO] File selesai dibuat: $(basename "$NEW_FILE")"
-        LAST_FILE="$NEW_FILE"
-    fi
+        filename=$(basename "$file")
+        day=${filename:0:10}
+        hour=${filename:11:2}
 
-    sleep 2
+        directory="$LOCAL_DIR/$day/$hour"
+
+        mkdir -p "$directory"
+
+        if mv "$file" "$directory/" 2>/dev/null; then
+            echo "[INFO] Record baru: $directory/$filename"
+        fi
+    done
+
+    sleep 3
 done
 ) &
 
