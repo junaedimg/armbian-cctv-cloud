@@ -1,4 +1,4 @@
-# Edge CCTV Cloud Archiver
+# CCTV Cloud Archiver
 Sistem perekaman CCTV berbasis Edge menggunakan RTSP + FFmpeg + rclone, dengan dukungan multi camera.
 
 Project ini berjalan pada perangkat edge (misalnya STB Armbian) untuk:
@@ -34,6 +34,7 @@ Struktur lokal disamakan dengan Google Drive (berdasarkan tanggal dan jam).
 │       ├── config.conf        # File konfigurasi utama
 │       ├── record.sh          # Script perekaman RTSP (FFmpeg)
 │       ├── upload.sh          # Script upload ke Google Drive (rclone)
+│       ├── run.sh             # Entry point untuk mulai manual
 │       ├── run_auto.sh        # Entry point untuk systemd (auto start)
 │       ├── record.out         # Output mentah FFmpeg (debug)
 │       ├── upload.out         # Output mentah rclone (debug)
@@ -42,8 +43,10 @@ Struktur lokal disamakan dengan Google Drive (berdasarkan tanggal dan jam).
 ├── var/
 │   └── log/
 │       └── cctv/
-│           ├── record.log
-│           └── upload.log
+│           ├── cam1_record.log
+│           ├── cam1_upload.log
+│           ├── cam2_record.log
+│           └── cam2_upload.log
 │
 └── cctv/
     └── recordings/
