@@ -1,5 +1,5 @@
 # Edge CCTV Cloud Archiver
-Sistem perekaman CCTV berbasis Edge menggunakan RTSP + FFmpeg + rclone.
+Sistem perekaman CCTV berbasis Edge menggunakan RTSP + FFmpeg + rclone, dengan dukungan multi camera.
 
 Project ini berjalan pada perangkat edge (misalnya STB Armbian) untuk:
 
@@ -47,27 +47,20 @@ Struktur lokal disamakan dengan Google Drive (berdasarkan tanggal dan jam).
 │
 └── cctv/
     └── recordings/
-        ├── 2026-02-14/
-        │   ├── 18/
-        │   │   ├── 2026-02-14_18-00-00.mp4
-        │   │   ├── 2026-02-14_18-00-30.mp4
-        │   │   └── ...
-        │   │
-        │   └── 19/
-        │       ├── 2026-02-14_19-00-00.mp4
-        │       ├── 2026-02-14_19-00-30.mp4
-        │       └── ...
+        ├── cam1/
+        │   └── YYYY-MM-DD/
+        │       └── HH/
+        │           └── YYYY-MM-DD_HH-MM-SS.mp4
         │
-        └── 2026-02-15/
-            ├── 07/
-            │   ├── 2026-02-15_07-00-00.mp4
-            │   ├── 2026-02-15_07-00-30.mp4
-            │   └── ...
-            │
-            └── 08/
-                ├── 2026-02-15_08-00-00.mp4
-                ├── 2026-02-15_08-00-30.mp4
-                └── ...
+        ├── cam2/
+        │   └── YYYY-MM-DD/
+        │       └── HH/
+        │           └── YYYY-MM-DD_HH-MM-SS.mp4
+        │
+        └── cam3/
+            └── YYYY-MM-DD/
+                └── HH/
+                    └── YYYY-MM-DD_HH-MM-SS.mp4
 ```
 
 ## 📁 Struktur Folder Cloud (Google Drive)
@@ -75,12 +68,25 @@ Secara struktur sama seperti dilocal, metode nya upload ke cloude -> delete loca
 ``` bash
 Google Drive
 └── CCTV/
-    └── YYYY-MM-DD/
-        └── HH/
-            └── YYYY-MM-DD_HH-MM-SS.mp4
+    ├── cam1/
+    │   └── YYYY-MM-DD/
+    │       └── HH/
+    │           └── YYYY-MM-DD_HH-MM-SS.mp4
+    │
+    ├── cam2/
+    │   └── YYYY-MM-DD/
+    │       └── HH/
+    │           └── YYYY-MM-DD_HH-MM-SS.mp4
+    │
+    └── cam3/
+        └── YYYY-MM-DD/
+            └── HH/
+                └── YYYY-MM-DD_HH-MM-SS.mp4
+
 ```
 
 ## 🚀 Langkah Instalasi
+
 ### 1 Install Dependency
 ```bash
 apt update
