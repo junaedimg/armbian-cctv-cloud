@@ -78,23 +78,17 @@ apt update
 apt install ffmpeg rclone -y
 ```
 
----
-
 ### 2️⃣ Konfigurasi rclone
 
 ```bash
 rclone config
 ```
 
----
-
 ### 3️⃣ Copy Project
 
 ```bash
 /opt/cctv
 ```
-
----
 
 ### 4️⃣ Ubah Format CRLF (File dari Windows)
 
@@ -103,30 +97,39 @@ cd /opt/cctv
 sed -i 's/\r$//' *.*
 ```
 
----
-
-### 5️⃣ Test Record & Upload (File untuk test di awal saja)
-
-```bash
-
-```
-
----
-
-### 6️⃣ Jalankan Sistem
+### 5️⃣ Jalankan Sistem
 
 ```bash
 ./run.sh
 ```
 
----
-
 ## ✅ Selesai
 
 Sistem siap digunakan sebagai **Edge CCTV Cloud Archiver**.
 
+---
 
-pkill -f record.sh
-pkill -f run.sh
-pkill -f upload.sh
-pkill -f ffmpeg
+## 🛠️ Perintah Penting / Catatan (Maintenance & Monitoring)
+
+```bash
+
+# Perbaikan CRLF (jika file dari Windows) jalankan pertama kali sebelum run.sh
+cd /opt/cctv
+sed -i 's/\r$//' *.sh
+
+# Permission (pertama kali)
+chmod +x run.sh
+chmod +x stop.sh
+
+# Menjalankan sistem
+./run.sh
+
+# Menghentikan sistem
+./stop.sh
+
+# Cek status proses
+ps aux | grep ffmpeg
+ps aux | grep rclone
+
+
+```

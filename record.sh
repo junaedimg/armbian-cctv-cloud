@@ -1,15 +1,23 @@
 #!/bin/bash
 source ./config.conf
 
-echo "========== CONFIG =========="
+echo -e "\n========================================"
+echo "              CONFIGURATION             "
+echo "========================================"
 
 while IFS='=' read -r key value; do
-    # skip comment dan baris kosong
+    # Skip komentar dan baris kosong
     [[ "$key" =~ ^#.*$ || -z "$key" ]] && continue
-    eval echo "$key = \$$key"
+
+    # Ambil nilai variable dari environment
+    current_value=$(eval echo \$$key)
+
+    printf "  %-20s : %s\n" "$key" "$current_value"
+
 done < config.conf
 
-echo "============================"
+echo -e"========================================\n"
+
 
 mkdir -p "$LOCAL_DIR"
 mkdir -p "$LOG_DIR"
