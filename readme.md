@@ -1,5 +1,4 @@
 # Edge CCTV Cloud Archiver
-
 Sistem perekaman CCTV berbasis Edge menggunakan RTSP + FFmpeg + rclone.
 
 Project ini berjalan pada perangkat edge (misalnya STB Armbian) untuk:
@@ -26,37 +25,49 @@ Google Drive (Cloud Archive)
 ---
 
 ## 📁 Struktur Folder Local STB
-``` bash
+Struktur lokal disamakan dengan Google Drive (berdasarkan tanggal dan jam).
+
+```bash
 /
 ├── opt/
 │   └── cctv/
-│       ├── config.conf      # File konfigurasi utama
-│       ├── record.sh        # Script perekaman RTSP (FFmpeg)
-│       ├── upload.sh        # Script upload ke Google Drive (rclone)
-│       ├── run.sh           # Menjalankan recorder + uploader
-│       └── test.sh          # Script pengujian manual
+│       ├── config.conf        # File konfigurasi utama
+│       ├── record.sh          # Script perekaman RTSP (FFmpeg)
+│       ├── upload.sh          # Script upload ke Google Drive (rclone)
+│       ├── run_auto.sh        # Entry point untuk systemd (auto start)
+│       ├── record.out         # Output mentah FFmpeg (debug)
+│       ├── upload.out         # Output mentah rclone (debug)
+│       └── cctv.service       # File service systemd
 │
 ├── var/
 │   └── log/
-│       └── cctv.log         # Log sistem (record + upload)
+│       └── cctv/
+│           ├── record.log
+│           └── upload.log
 │
 └── cctv/
-    ├── 2026-02-12/
-    │   ├── 09/
-    │   │   ├── 2026-02-12_09-00-00.mp4
-    │   │   ├── 2026-02-12_09-00-30.mp4
-    │   │   └── ...
-    │   │
-    │   └── 10/
-    │       ├── 2026-02-12_10-00-00.mp4
-    │       ├── 2026-02-12_10-00-30.mp4
-    │       ├── ...
-    │       └── ...
-    │
-    └── 2026-02-13/
-        ├── 00/
-        ├── 01/
-        └── ...
+    └── recordings/
+        ├── 2026-02-14/
+        │   ├── 18/
+        │   │   ├── 2026-02-14_18-00-00.mp4
+        │   │   ├── 2026-02-14_18-00-30.mp4
+        │   │   └── ...
+        │   │
+        │   └── 19/
+        │       ├── 2026-02-14_19-00-00.mp4
+        │       ├── 2026-02-14_19-00-30.mp4
+        │       └── ...
+        │
+        └── 2026-02-15/
+            ├── 07/
+            │   ├── 2026-02-15_07-00-00.mp4
+            │   ├── 2026-02-15_07-00-30.mp4
+            │   └── ...
+            │
+            └── 08/
+                ├── 2026-02-15_08-00-00.mp4
+                ├── 2026-02-15_08-00-30.mp4
+                └── ...
 ```
 
 ## 📁 Struktur Folder Cloud (Google Drive)
@@ -70,48 +81,54 @@ Google Drive
 ```
 
 ## 🚀 Langkah Instalasi
-
-### 1️⃣ Install Dependency
-
+### 1 Install Dependency
 ```bash
 apt update
 apt install ffmpeg rclone -y
 ```
 
-### 2️⃣ Konfigurasi rclone
-
+### 2 Konfigurasi rclone
 ```bash
 rclone config
 ```
 
-### 3️⃣ Copy Project
-
+### 3 Copy / Download Project ini ke PATH
 ```bash
 /opt/cctv
 ```
 
-### 4️⃣ Ubah Format CRLF (File dari Windows)
-
+### 4 Ubah Format CRLF (File dari Windows)
 ```bash
 cd /opt/cctv
-sed -i 's/\r$//' *.*
+find . -type f \( -name "*.sh" -o -name "*.conf" -o -name "*.service" \) -exec sed -i 's/\r$//' {} +
 ```
 
-### 5️⃣ Jalankan Sistem
-
+### 5 Copy service
 ```bash
-./run.sh
+sudo cp /opt/cctv/cctv.service /etc/systemd/system/
+```
+
+### 6 Run service (auto run boot)
+```bash
+sudo systemctl daemon-reload
+systemctl enable cctv
+systemctl start cctv
+sudo systemctl restart cctv
 ```
 
 ## ✅ Selesai
-
-Sistem siap digunakan sebagai **Edge CCTV Cloud Archiver**.
+Sistem siap digunakan.
 
 ---
 
 ## 🛠️ Perintah Penting / Catatan (Maintenance & Monitoring)
 
 ```bash
+# Restart Service
+systemctl restart cctv
+
+# Restart Service
+systemctl stop cctv
 
 # Perbaikan CRLF (jika file dari Windows) jalankan pertama kali sebelum run.sh
 cd /opt/cctv
@@ -121,15 +138,19 @@ sed -i 's/\r$//' *.sh
 chmod +x run.sh
 chmod +x stop.sh
 
-# Menjalankan sistem
+# Menjalankan sistem saat manual
 ./run.sh
 
-# Menghentikan sistem
+# Menghentikan sistem saat manual
 ./stop.sh
 
 # Cek status proses
 ps aux | grep ffmpeg
 ps aux | grep rclone
 
+chmod +x /opt/cctv/run_auto.sh
 
+# Cek Output
+tail -f /var/log/cctv/record.log
+tail -f /var/log/cctv/upload.log
 ```

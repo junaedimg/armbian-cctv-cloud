@@ -1,23 +1,20 @@
 #!/bin/bash
-source ./config.conf
+
+CONFIG_FILE="/opt/cctv/config.conf"
+
+source "$CONFIG_FILE"
 
 echo -e "\n========================================"
 echo "              CONFIGURATION             "
 echo "========================================"
 
 while IFS='=' read -r key value; do
-    # Skip komentar dan baris kosong
     [[ "$key" =~ ^#.*$ || -z "$key" ]] && continue
-
-    # Ambil nilai variable dari environment
     current_value=$(eval echo \$$key)
-
     printf "  %-20s : %s\n" "$key" "$current_value"
+done < "$CONFIG_FILE"
 
-done < config.conf
-
-echo -e"========================================\n"
-
+echo -e "========================================\n"
 
 mkdir -p "$LOCAL_DIR"
 mkdir -p "$LOG_DIR"

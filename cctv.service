@@ -1,0 +1,16 @@
+[Unit]
+Description=Armbian CCTV Cloud Recorder
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/cctv
+ExecStart=/bin/bash /opt/cctv/run_auto.sh
+Restart=always
+RestartSec=5
+KillMode=control-group
+
+[Install]
+WantedBy=multi-user.target

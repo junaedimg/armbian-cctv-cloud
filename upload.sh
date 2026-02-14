@@ -1,5 +1,5 @@
 #!/bin/bash
-source ./config.conf
+source /opt/cctv/config.conf
 
 mkdir -p "$LOCAL_DIR"
 mkdir -p "$LOG_DIR"
