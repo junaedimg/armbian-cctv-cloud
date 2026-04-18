@@ -3,9 +3,23 @@
 CONFIG_FILE="/opt/cctv/config.conf"
 source "$CONFIG_FILE"
 
+########################################
+# SANITIZE (ANTI CRLF)
+########################################
+sanitize() {
+    echo "$1" | tr -d '\r'
+}
+
+LOCAL_DIR=$(sanitize "$LOCAL_DIR")
+SEGMENT_TIME=$(sanitize "$SEGMENT_TIME")
+USE_AUDIO=$(sanitize "$USE_AUDIO")
+
+for i in "${!CAMERAS[@]}"; do
+    CAMERAS[$i]=$(sanitize "${CAMERAS[$i]}")
+done
+
 GLOBAL_LOG="/opt/cctv/record.out"
 touch "$GLOBAL_LOG"
-
 
 ########################################
 # KILL OLD FFMPEG (PER CAMERA)
@@ -31,7 +45,6 @@ echo "              CONFIGURATION             "
 echo "========================================"
 
 echo "LOCAL_DIR     : $LOCAL_DIR"
-echo "LOG_DIR       : $LOG_DIR"
 echo "SEGMENT_TIME  : $SEGMENT_TIME"
 echo "USE_AUDIO     : $USE_AUDIO"
 echo "TOTAL CAM     : ${#CAMERAS[@]}"
@@ -42,7 +55,6 @@ echo -e "========================================\n"
 # ENSURE BASE DIRECTORIES EXIST
 ########################################
 mkdir -p "$LOCAL_DIR"
-mkdir -p "$LOG_DIR"
 
 ########################################
 # AUDIO OPTIONS
@@ -107,8 +119,6 @@ while true; do
 done
 ) &
 
-
-
 ########################################
 # START RECORDING PER CAMERA
 ########################################
@@ -118,46 +128,27 @@ for CAM in "${CAMERAS[@]}"; do
     URL="${CAM#*|}"
 
     CAM_DIR="$LOCAL_DIR/$NAME"
-    LOG_FILE="$LOG_DIR/${NAME}_record.log"
 
     mkdir -p "$CAM_DIR"
-    mkdir -p "$LOG_DIR"
-    touch "$LOG_FILE"
 
     echo "[$(date '+%Y-%m-%d %H:%M:%S')][$NAME] Starting Camera"
     echo "[$(date '+%Y-%m-%d %H:%M:%S')][$NAME] Stream: $URL"
 
-    ffmpeg -loglevel warning \
-        -rtsp_transport tcp \
-        -fflags +genpts \
-        -i "$URL" \
-        $AUDIO_OPTS \
-        -f segment \
-        -segment_time "$SEGMENT_TIME" \
-        -segment_atclocktime 1 \
-        -segment_format mp4 \
-        -reset_timestamps 1 \
-        -strftime 1 \
-        "$CAM_DIR/%Y-%m-%d_%H-%M-%S.mp4" 2>&1 | \
-    while read line; do
-        echo "[$(date '+%Y-%m-%d %H:%M:%S')][$NAME] $line" >> "$LOG_FILE"
-    done &
+ ffmpeg -loglevel warning \
+    -rtsp_transport tcp \
+    -use_wallclock_as_timestamps 1 \
+    -fflags +genpts+igndts \
+    -avoid_negative_ts make_zero \
+    -i "$URL" \
+    $AUDIO_OPTS \
+    -f segment \
+    -segment_time "$SEGMENT_TIME" \
+    -segment_atclocktime 1 \
+    -segment_format mp4 \
+    -reset_timestamps 1 \
+    -strftime 1 \
+    "$CAM_DIR/%Y-%m-%d_%H-%M-%S.mp4" 2>&1 &
 
 done
-
-
-########################################
-# AUTO CLEAN LOG > 24 JAM
-########################################
-(
-while true; do
-    find "$LOG_DIR" -type f -name "*_record.log" -mmin +1440 -delete
-    sleep 3600
-done
-) &
-
 
 wait
-
-
-
